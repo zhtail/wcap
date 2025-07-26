@@ -1,0 +1,33 @@
+name: Build and Release wcap
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - '**/README.md'
+
+jobs:
+  build:
+    runs-on: windows-2022
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build wcap (x64)
+        run: build.cmd x64
+
+      - name: Build wcap (arm64)
+        run: build.cmd arm64
+
+      - name: Create Release and Upload Artifacts
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            wcap-x64.exe
+            wcap-arm64.exe
+          tag_name: "build-${{ github.sha }}"
+          body: "Automated build of wcap binaries"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
